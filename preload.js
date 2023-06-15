@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   RCM: (index) => ipcRenderer.send('RCM', index),
   menuClicked: (callback) => ipcRenderer.on('menuClicked', callback),
   readFile: (path) => ipcRenderer.invoke('readfile', path),
-  sqlQuery: (queryString) => ipcRenderer.invoke('sqlQuery', queryString)
+  writeFile: (path, content) => ipcRenderer.invoke('writeFile', path, content),
+  sqlQuery: (clientConfig, queryString) => ipcRenderer.invoke('sqlQuery', clientConfig, queryString)
 })
 

@@ -1,9 +1,1 @@
-[
-    {
-        "name": "test host",
-        "host": ".",
-        "database": "SSA",
-        "username": "tfuser",
-        "password": "$transfinder2006"
-    }
-]
+[{"name":"test host","host":".","database":"SSA","username":"tfuser","password":"$transfinder2006"}]

@@ -45,6 +45,7 @@
   </ng-template>
 
   <ng-template #modalFooter>
+    <button nz-button nzType="primary" (click)="TestSqlConnect()">Test Connect</button>
     <button nz-button nzType="primary" (click)="handleOk()" [nzLoading]="isConfirmLoading">Submit</button>
     <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
   </ng-template>

@@ -5,7 +5,7 @@ const fs = require('fs');
 
 let win;
 
-function createWindow ()
+function createWindow()
 {
   win = new BrowserWindow({
     width: 800,
@@ -35,7 +35,7 @@ function createWindow ()
   settingFileInit();
 
   ipcMain.handle('readfile', readFile)
-
+  ipcMain.handle('writeFile', writeFile)
   ipcMain.handle('sqlQuery', sqlQuery)
 
 }
@@ -59,7 +59,7 @@ app.on('activate', () =>
 });
 
 
-function rightClickMenuInit ()
+function rightClickMenuInit()
 {
   ipcMain.on('RCM', (event, index) =>
   {
@@ -79,7 +79,7 @@ function rightClickMenuInit ()
   })
 }
 
-function settingFileInit ()
+function settingFileInit()
 {
   if (!fs.existsSync('./sqlConfigs.json'))
   {
@@ -97,7 +97,7 @@ function settingFileInit ()
 
 }
 
-function readFile (event, path)
+function readFile(event, path)
 {
   return new Promise((resolve, reject) =>
   {
@@ -113,41 +113,37 @@ function readFile (event, path)
   });
 }
 
-function sqlQuery (event, queystring)
+function writeFile(event, path, content)
 {
   return new Promise((resolve, reject) =>
   {
-    const mysql = require('mysql');
-    const connection = mysql.createConnection({
-      host: 'localhost', // 数据库主机名
-      user: 'electron', // 数据库用户名
-      password: 'electron', // 数据库密码
-      database: 'ABPDb' // 数据库名
-    });
-
-    connection.connect((err) =>
+    // Write
+    fs.writeFile(path, content, (err) =>
     {
       if (err)
       {
-        reject(err)
-        // console.error('Error connecting to database: ', err);
-        // return;
+        reject(err);
       }
-      console.log('Connected to database!');
-    });
 
-    // 执行 SQL 查询
-    connection.query(queystring, (err, rows) =>
-    {
-      if (err)
-      {
-        reject(err)
-        // console.error('Error executing query: ', err);
-        // return;
-      }
-      resolve(rows);
-
+      resolve();
     });
   });
+}
 
+
+async function sqlQuery(event, clientConfig, queystring)
+{
+  const sql = require('mssql')
+  const sqlConfig = {
+    options: {
+      trustServerCertificate: true,
+      Encrypt: true
+    },
+    ...clientConfig
+  }
+
+  await sql.connect(sqlConfig);
+  var result = await sql.query(queystring);
+  sql.close();
+  return result;
 }

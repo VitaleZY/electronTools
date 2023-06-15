@@ -1,5 +1,5 @@
 export class SQLConfig {
-    constructor () { }
+    constructor() { }
     public name: String
     public host: String
     public database: String
