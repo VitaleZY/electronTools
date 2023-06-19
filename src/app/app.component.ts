@@ -15,7 +15,9 @@ export class AppComponent implements OnInit {
   @ViewChild(SQLConfigSettingComponent, null) sqlEditor: SQLConfigSettingComponent;
 
   isCollapsed = false;
-  private configs: [SQLConfig]
+  private configs: [SQLConfig];
+  private isSpinning: boolean = false;
+  public currentIndex = 0
 
   ngOnInit(): void {
     this.loadConfig()
@@ -36,6 +38,10 @@ export class AppComponent implements OnInit {
         self.storeConfig();
       }
     })
+  }
+
+  itemClick(event: MouseEvent, index: number) {
+    this.currentIndex = index;
   }
 
   onRightClick(event: MouseEvent, index: number) {
@@ -65,6 +71,14 @@ export class AppComponent implements OnInit {
       this.message.create('error', `Save error.`);
     }
 
+  }
+
+  public showLaoding() {
+    this.isSpinning = true;
+  }
+
+  public hideLaoding() {
+    this.isSpinning = false;
   }
 
 

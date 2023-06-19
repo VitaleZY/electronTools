@@ -1,0 +1,26 @@
+<div class="main-content">
+  <div nz-row>
+    <div nz-col nzSpan="3">Debug Mode</div>
+    <div nz-col nzSpan="2"><nz-switch></nz-switch></div>
+    <div nz-col nzSpan="3">Run Last Scripts</div>
+    <div nz-col nzSpan="2"><nz-switch></nz-switch></div>
+  </div>
+  <nz-descriptions nzBordered [nzColumn]="2" style="margin-top: 1rem">
+    <nz-descriptions-item nzTitle="File Path" [nzSpan]="2">{{sqlConfig.filepath}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Sql Host">{{sqlConfig.host}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="DataBase">{{sqlConfig.database}}</nz-descriptions-item>
+  </nz-descriptions>
+  <div nz-row class="script-running-info">
+    <nz-progress [nzPercent]="75"></nz-progress>
+  </div>
+  <div nz-row class="script-running-info">
+    <nz-card style="width:100%;" nzTitle="Running Logs">
+      <div class="logbox">
+        <p>Card content</p>
+        <p>Card content</p>
+        <p>Card content</p>
+      </div>
+
+    </nz-card>
+  </div>
+</div>

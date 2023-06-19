@@ -14,15 +14,21 @@ import { NzLayoutModule } from 'ng-zorro-antd/layout'
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 import en from '@angular/common/locales/en';
 import { SQLConfigSettingComponent } from './myComponent/sqlconfig-setting/sqlconfig-setting.component';
+import { MainContentComponent } from './myComponent/main-content/main-content.component';
 
 registerLocaleData(en);
 
 @NgModule({
   declarations: [
     AppComponent,
-    SQLConfigSettingComponent
+    SQLConfigSettingComponent,
+    MainContentComponent
   ],
   imports: [
     BrowserModule,
@@ -36,7 +42,11 @@ registerLocaleData(en);
     NzLayoutModule,
     NzMenuModule,
     NzIconModule,
-    NzFormModule
+    NzFormModule,
+    NzSpinModule,
+    NzDescriptionsModule,
+    NzSwitchModule,
+    NzGridModule
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent]

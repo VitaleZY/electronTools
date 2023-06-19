@@ -139,7 +139,10 @@ async function sqlQuery(event, clientConfig, queystring)
       trustServerCertificate: true,
       Encrypt: true
     },
-    ...clientConfig
+    user: clientConfig.username,
+    password: clientConfig.password,
+    server: clientConfig.host === '.' ? 'localhost' : clientConfig.host,
+    database: clientConfig.database,
   }
 
   await sql.connect(sqlConfig);

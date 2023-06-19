@@ -55,19 +55,18 @@ export class SQLConfigSettingComponent implements OnInit {
 
   async TestSqlConnect(): Promise<void> {
     const self = this;
-    const config = {
-      user: self.currentConfig.username,
-      password: self.currentConfig.password,
-      server: self.currentConfig.host === '.' ? 'localhost' : self.currentConfig.host,
-      database: self.currentConfig.database,
-    }
-    try {
-      await window["electronAPI"].sqlQuery(config, "select * from TFsysInfo where InfoID = 'DBVERSION'")
-      this.message.create('success', `Connect SQL Server service success.`);
-    }
-    catch {
-      this.message.create('error', `Cannot connect SQL Server service.`);
-    }
+    self.isConfirmLoading = true;
+
+    window["electronAPI"].sqlQuery(self.currentConfig, "select * from TFsysInfo where InfoID = 'DBVERSION'")
+      .then(() => {
+        this.message.create('success', `Connect SQL Server service success.`);
+      })
+      .catch((err) => {
+        this.message.create('error', `Cannot connect SQL Server service.`);
+      })
+      .finally(() => {
+        self.isConfirmLoading = false;
+      });
   }
 
 }
