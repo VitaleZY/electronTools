@@ -3,28 +3,48 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
+// Base
 let win;
+app.on('ready', createWindow);
+app.on('window-all-closed', () =>
+{
+  if (process.platform !== 'darwin')
+  {
+    app.quit();
+  }
+});
+app.on('activate', () =>
+{
+  if (win === null)
+  {
+    createWindow();
+  }
+});
 
+/**
+ * Create Window function
+ */
 function createWindow()
 {
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
+    autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
   });
 
-  // win.loadURL(url.format({
-  //   pathname: path.join(__dirname, 'dist/patrolSQL/index.html'),
-  //   protocol: 'file:',
-  //   slashes: true
-  // }));
+  win.loadURL(url.format({
+    pathname: path.join(__dirname, 'dist/patrolSQL/index.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
 
-  win.loadURL('http://localhost:4200/');
+  // win.loadURL('http://localhost:4200/');
 
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   win.on('closed', () =>
   {
@@ -34,31 +54,15 @@ function createWindow()
   rightClickMenuInit();
   settingFileInit();
 
-  ipcMain.handle('readfile', readFile)
-  ipcMain.handle('writeFile', writeFile)
-  ipcMain.handle('sqlQuery', sqlQuery)
-
+  ipcMain.handle('readfile', readFile);
+  ipcMain.handle('writeFile', writeFile);
+  ipcMain.handle('sqlQuery', sqlQuery);
+  ipcMain.handle('forEachFiles', forEachFiles)
 }
 
-app.on('ready', createWindow);
-
-app.on('window-all-closed', () =>
-{
-  if (process.platform !== 'darwin')
-  {
-    app.quit();
-  }
-});
-
-app.on('activate', () =>
-{
-  if (win === null)
-  {
-    createWindow();
-  }
-});
-
-
+/**
+ * Init RCM
+ */
 function rightClickMenuInit()
 {
   ipcMain.on('RCM', (event, index) =>
@@ -79,6 +83,9 @@ function rightClickMenuInit()
   })
 }
 
+/**
+ * Init base config file
+ */
 function settingFileInit()
 {
   if (!fs.existsSync('./sqlConfigs.json'))
@@ -95,24 +102,52 @@ function settingFileInit()
     });
   }
 
+  if (!fs.existsSync('./logs'))
+  {
+    fs.mkdir('./logs', { recursive: true }, (err) =>
+    {
+      if (err)
+      {
+        console.error(err);
+        return;
+      }
+    });
+    console.log('Logs Folder exists!');
+  }
+
 }
 
+/**
+ * Read file helper
+ * @param {*} event 
+ * @param {*} path 
+ * @returns 
+ */
 function readFile(event, path)
 {
   return new Promise((resolve, reject) =>
   {
     // Read
-    fs.readFile(path, 'utf-8', (err, data) =>
+    fs.readFile(path, (err, data) =>
     {
       if (err)
       {
         reject(err);
       }
-      resolve(data);
+      const hasBOM = data.slice(0, 3).toString('hex') === 'efbbbf';
+      const content = hasBOM ? data.slice(3).toString('utf-8') : data.toString('utf-8');
+      resolve(content);
     });
   });
 }
 
+/**
+ * Write file helper
+ * @param {*} event 
+ * @param {*} path 
+ * @param {*} content 
+ * @returns 
+ */
 function writeFile(event, path, content)
 {
   return new Promise((resolve, reject) =>
@@ -131,6 +166,13 @@ function writeFile(event, path, content)
 }
 
 
+/**
+ * Sql query helper
+ * @param {*} event 
+ * @param {*} clientConfig 
+ * @param {*} queystring 
+ * @returns 
+ */
 async function sqlQuery(event, clientConfig, queystring)
 {
   const sql = require('mssql')
@@ -150,3 +192,52 @@ async function sqlQuery(event, clientConfig, queystring)
   sql.close();
   return result;
 }
+
+async function forEachFiles(event, folderPath)
+{
+  let result = [];
+  // Get all files
+  const files = fs.readdirSync(folderPath);
+
+  function insert(result, item)
+  {
+    if (item.fileName.indexOf('.sql') > -1)
+    {
+      result.push(item);
+    }
+  }
+
+  function getFileInfo(filePath)
+  {
+    pathSplitList = filePath.split('\\');
+    return {
+      folderName: pathSplitList[pathSplitList.length - 2],
+      fileName: pathSplitList[pathSplitList.length - 1],
+      fullPath: filePath
+    }
+  }
+
+  // Loop files
+  await files.forEach(async file =>
+  {
+    const filePath = `${folderPath}\\${file}`;
+
+    // Check is directory
+    if (fs.statSync(filePath).isDirectory())
+    {
+      const value = await forEachFiles(event, filePath);
+      value.forEach(scriptFile =>
+      {
+        insert(result, scriptFile);
+      });
+    }
+    else
+    {
+      insert(result, getFileInfo(filePath));
+    }
+  });
+
+  return result;
+}
+
+

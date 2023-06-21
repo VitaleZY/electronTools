@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { SQLConfigSettingComponent } from './myComponent/sqlconfig-setting/sqlconfig-setting.component'
+import { SQLConfigSettingComponent } from './myComponent/sqlconfig-setting/sqlconfig-setting.component';
+import { MainContentComponent } from './myComponent/main-content/main-content.component';
 import { FileService } from './file-service.service';
 import { SQLConfig } from 'src/dto/sqlConfig';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -13,17 +14,19 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 })
 export class AppComponent implements OnInit {
   @ViewChild(SQLConfigSettingComponent, null) sqlEditor: SQLConfigSettingComponent;
+  @ViewChild(MainContentComponent, null) mainContent: MainContentComponent;
 
   isCollapsed = false;
-  private configs: [SQLConfig];
-  private isSpinning: boolean = false;
-  public currentIndex = 0
+  configs: SQLConfig[] = [];
+  isSpinning: boolean = false;
+  public currentIndex = 0;
+  runningScript: boolean = false;
 
   ngOnInit(): void {
     this.loadConfig()
   }
 
-  constructor(private fileService: FileService, private message: NzMessageService) {
+  constructor(public fileService: FileService, public message: NzMessageService) {
     const self = this;
     window["electronAPI"].menuClicked((e, value, index) => {
       if (value === 1) {
@@ -41,7 +44,11 @@ export class AppComponent implements OnInit {
   }
 
   itemClick(event: MouseEvent, index: number) {
-    this.currentIndex = index;
+    if (this.currentIndex !== index) {
+      this.mainContent.clearRunningTempValue();
+      this.currentIndex = index;
+    }
+
   }
 
   onRightClick(event: MouseEvent, index: number) {
@@ -81,5 +88,7 @@ export class AppComponent implements OnInit {
     this.isSpinning = false;
   }
 
-
+  public setRunningScript(status: boolean): void {
+    this.runningScript = status;
+  }
 }

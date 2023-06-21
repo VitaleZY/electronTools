@@ -18,6 +18,9 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzResultModule } from 'ng-zorro-antd/result';
+
 import en from '@angular/common/locales/en';
 import { SQLConfigSettingComponent } from './myComponent/sqlconfig-setting/sqlconfig-setting.component';
 import { MainContentComponent } from './myComponent/main-content/main-content.component';
@@ -46,7 +49,9 @@ registerLocaleData(en);
     NzSpinModule,
     NzDescriptionsModule,
     NzSwitchModule,
-    NzGridModule
+    NzGridModule,
+    NzTagModule,
+    NzResultModule
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent]

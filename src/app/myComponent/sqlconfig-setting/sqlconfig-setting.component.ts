@@ -10,10 +10,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 })
 export class SQLConfigSettingComponent implements OnInit {
   public passwordVisible: boolean = false
-  private currentConfig: SQLConfig = new SQLConfig();
-  private editReslove: (value: SQLConfig | PromiseLike<SQLConfig>) => void;
+  currentConfig: SQLConfig = new SQLConfig();
+  editReslove: (value: SQLConfig | PromiseLike<SQLConfig>) => void;
 
-  constructor(private message: NzMessageService) { }
+  constructor(public message: NzMessageService) { }
 
   ngOnInit() {
   }

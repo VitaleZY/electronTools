@@ -1,26 +1,44 @@
 <div class="main-content">
   <div nz-row>
     <div nz-col nzSpan="3">Debug Mode</div>
-    <div nz-col nzSpan="2"><nz-switch></nz-switch></div>
-    <div nz-col nzSpan="3">Run Last Scripts</div>
-    <div nz-col nzSpan="2"><nz-switch></nz-switch></div>
+    <div nz-col nzSpan="2">
+      <nz-switch [(ngModel)]="isDebugMode" [nzLoading]="isRunning"></nz-switch>
+    </div>
   </div>
   <nz-descriptions nzBordered [nzColumn]="2" style="margin-top: 1rem">
-    <nz-descriptions-item nzTitle="File Path" [nzSpan]="2">{{sqlConfig.filepath}}</nz-descriptions-item>
-    <nz-descriptions-item nzTitle="Sql Host">{{sqlConfig.host}}</nz-descriptions-item>
-    <nz-descriptions-item nzTitle="DataBase">{{sqlConfig.database}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="File Path" [nzSpan]="2">{{sqlConfig && sqlConfig.filepath}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Sql Host">{{sqlConfig && sqlConfig.host}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="DataBase">{{sqlConfig && sqlConfig.database}}</nz-descriptions-item>
   </nz-descriptions>
+  <div nz-row class="script-running-detail" *ngIf="currentRunningScript != ''">
+    {{currentRunningScript}}
+  </div>
   <div nz-row class="script-running-info">
-    <nz-progress [nzPercent]="75"></nz-progress>
+    <nz-progress [nzPercent]="runningPercent.toFixed(0)"></nz-progress>
   </div>
   <div nz-row class="script-running-info">
     <nz-card style="width:100%;" nzTitle="Running Logs">
       <div class="logbox">
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
+        <div nz-row *ngFor="let log of logTexts" style="margin-top: 10px;">
+          <div nz-col nzSpan="3">
+            <nz-tag *ngIf="log.type"
+              [nzColor]="log.type =='success'?'green': log.type == 'info'?'geekblue':'red'">{{log.type}}
+            </nz-tag>
+          </div>
+          <div nz-col nzSpan="21" [style.font-weight]="log.type ? '700' : '400'">
+            {{log.text}}
+          </div>
+        </div>
       </div>
-
     </nz-card>
   </div>
+  <br />
+  <button nz-button nzType="primary" (click)="runScript(tplContent)" [nzLoading]="isRunning">Run Script</button>
+  <ng-template #tplContent>
+    <p>{{ versionText }}</p>
+    <p>Other Script:</p>
+    <p *ngFor="let options of checkBoxTempOptions;index as i;">
+      <label nz-checkbox [(ngModel)]="options.checked">{{options.label}}</label>
+    </p>
+  </ng-template>
 </div>

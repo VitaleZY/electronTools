@@ -1,21 +1,29 @@
 <nz-spin nzTip="Loading..." [nzSpinning]="isSpinning">
   <nz-layout class="mainlayout">
     <nz-sider>
-      <div style="width:100%;padding:5px 5px;text-align: left;">
-        <button nz-button nzType="primary" [nzSize]="'small'" (click)="addClick()"><span nz-icon
-            nzType="plus"></span></button>
-      </div>
-      <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-        <li *ngFor="let item of configs;index as i;" nz-menu-item nz-tooltip nzTooltipPlacement="right"
-          [nzSelected]="i === currentIndex" (contextmenu)="onRightClick($event,i)" (click)="itemClick($event,i)">
-          <span nz-icon nzType="setting"></span>
-          <span>{{item.name}}</span>
-        </li>
-      </ul>
+      <nz-spin [nzSpinning]="runningScript">
+        <div style="width:100%;padding:5px 5px;text-align: left;">
+          <button nz-button nzType="primary" [nzSize]="'small'" (click)="addClick()">New</button>
+        </div>
+        <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+          <li *ngFor="let item of configs;index as i;" nz-menu-item nz-tooltip nzTooltipPlacement="right"
+            [nzSelected]="i === currentIndex" (contextmenu)="onRightClick($event,i)" (click)="itemClick($event,i)">
+            <span nz-icon nzType="setting"></span>
+            <span>{{item.name}}</span>
+          </li>
+        </ul>
+      </nz-spin>
     </nz-sider>
+
     <nz-layout>
       <nz-content>
-        <app-main-content [sqlConfig]="configs[currentIndex]"></app-main-content>
+        <app-main-content *ngIf="configs && configs.length>0 && configs[currentIndex]"
+          [sqlConfig]="configs[currentIndex]" (notify)="setRunningScript($event)"></app-main-content>
+        <nz-result *ngIf="configs && configs.length==0" nzStatus="info" nzTitle="The Sql Config is empty!">
+          <div nz-result-extra>
+            <button nz-button nzType="primary" (click)="addClick()">Create New</button>
+          </div>
+        </nz-result>
       </nz-content>
     </nz-layout>
   </nz-layout>

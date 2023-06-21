@@ -10,7 +10,9 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "electron:www": "ng build --base-href ./ --prod",
-    "electron": "electron ."
+    "electron": "electron .",
+    "dist": "electron-builder",
+    "package": "electron-packager . HelloWorld --platform=win32 --arch=x64 --icon=computer.ico --out=./out --asar --app-version=0.0.1 --overwrite --ignore=node_modules"
   },
   "private": true,
   "dependencies": {
@@ -37,8 +39,10 @@
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^8.9.5",
+    "builder-util": "^24.5.0",
     "codelyzer": "^5.0.0",
     "electron": "^8.5.5",
+    "electron-builder": "^24.4.0",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
@@ -50,5 +54,18 @@
     "ts-node": "~7.0.0",
     "tslint": "~5.15.0",
     "typescript": "~3.4.3"
+  },
+  "build": {
+    "appId": "com.transfinder.tools",
+    "productName": "patrolSql",
+    "files": [
+      "preload.js",
+      "main.js",
+      "dist/patrolSQL/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }
