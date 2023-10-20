@@ -4,9 +4,6 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { FileService } from 'src/app/file-service.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
-
-
-
 @Component({
   selector: 'app-main-content',
   templateUrl: './main-content.component.html',
@@ -15,13 +12,16 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class MainContentComponent implements OnInit {
   @Input() sqlConfig: SQLConfig;
   @Output() notify: EventEmitter<boolean> = new EventEmitter<boolean>();
-  checkBoxTempOptions: any[] = [];
+  nodes: any[] = [];
   versionText: String = "";
   logTexts: any[] = [];
   runningPercent: Number = 0;
   isDebugMode: boolean = false;
   isRunning: boolean = false;
   currentRunningScript: string = "";
+  searchText: string = "";
+  searchScriptResult: any[] = [];
+  fullLoading: boolean = false;
 
   constructor(public modal: NzModalService, public fileService: FileService, public message: NzMessageService) { }
 
@@ -61,12 +61,23 @@ export class MainContentComponent implements OnInit {
           }
 
         });
-        self.checkBoxTempOptions = [];
 
-        scripFileShouldRun.forEach((_, key) => {
-          self.checkBoxTempOptions.push({
-            label: key, value: key, checked: true
-          })
+        self.nodes = [];
+        scripFileShouldRun.forEach((_value, _key) => {
+          self.nodes.push({
+            title: _key,
+            key: _key,
+            expanded: true,
+            checked: true,
+            children: _value.map(x => {
+              return {
+                title: x.fileName,
+                key: x.fileName,
+                isLeaf: true,
+                checked: true,
+              }
+            })
+          });
         });
 
         if (currentVersion && lastVersion) {
@@ -79,7 +90,11 @@ export class MainContentComponent implements OnInit {
           nzContent: tplContent,
           nzClosable: false,
           nzOnOk: () => {
-            self.tryRunningScript(versionScripFileShouldRun, scripFileShouldRun, self.checkBoxTempOptions.filter(x => x.checked).map(x => x.value));
+            let selectedScript = [];
+            self.nodes.forEach(item => {
+              selectedScript = [...selectedScript, ...item.children.filter(x => x.checked).map(x => x.key)]
+            });
+            self.tryRunningScript(versionScripFileShouldRun, scripFileShouldRun, selectedScript);
             return true;
           },
           nzOnCancel: () => {
@@ -117,10 +132,7 @@ export class MainContentComponent implements OnInit {
     }
 
     for (const [key, value] of otherScripts) {
-      if (selectedKeys.includes(key)) {
-        runningList = [...runningList, ...value];
-      }
-
+      runningList = [...runningList, ...value.filter(x => selectedKeys.includes(x.fileName))];
     }
 
     for (const item of runningList) {
@@ -152,7 +164,7 @@ export class MainContentComponent implements OnInit {
   }
 
   public clearRunningTempValue() {
-    this.checkBoxTempOptions = [];
+    this.nodes = [];
     this.versionText = "";
     this.logTexts = [];
     this.runningPercent = 0;
@@ -167,4 +179,54 @@ export class MainContentComponent implements OnInit {
     await this.fileService.writeFile(`./logs/${new Date().valueOf()}_log.log`, this.logTexts.map(x => `${x.type ? x.type.toUpperCase() : ''} ${x.text}`).join('\r\n'))
   }
 
+  nzEvent(event: any): void {
+  }
+
+  searchScript(scriptSearchContent: TemplateRef<{}>) {
+    this.searchText = '';
+    this.searchScriptResult = [];
+    this.modal.create({
+      nzTitle: 'Search Script',
+      nzContent: scriptSearchContent,
+      nzClosable: true,
+      nzFooter: null
+    })
+  }
+
+  searchInFile() {
+    const self = this;
+    self.fullLoading = true;
+    setTimeout(() => {
+      self.searchInFileDetail().then(() => {
+        self.fullLoading = false;
+      });
+    }, 1000);
+
+  }
+
+  async searchInFileDetail() {
+    const self = this;
+    if (!self.searchText) {
+      self.message.create('error', `Search text cannot be none!`);
+      return;
+    }
+
+    const result = await window['electronAPI'].forEachFiles(self.sqlConfig.filepath);
+    if (!result) {
+      self.message.create('error', `Cannot find any script file!`);
+      return;
+    }
+
+    const res = []
+    for (let file of result) {
+      let fileValue = await self.fileService.readFile(file.fullPath);
+      if (file.fileName.includes(self.searchText) || fileValue.includes(self.searchText)) {
+        res.push({ scriptName: `${file.folderName}/${file.fileName}`, scriptDetail: fileValue })
+      }
+    }
+
+    self.message.create('info', `Search ${res.length} files.`);
+
+    self.searchScriptResult = res;
+  }
 }

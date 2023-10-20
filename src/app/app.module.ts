@@ -20,6 +20,8 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzTreeModule } from 'ng-zorro-antd/tree';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 
 import en from '@angular/common/locales/en';
 import { SQLConfigSettingComponent } from './myComponent/sqlconfig-setting/sqlconfig-setting.component';
@@ -51,7 +53,9 @@ registerLocaleData(en);
     NzSwitchModule,
     NzGridModule,
     NzTagModule,
-    NzResultModule
+    NzResultModule,
+    NzTreeModule,
+    NzCollapseModule
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent]

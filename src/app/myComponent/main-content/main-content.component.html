@@ -4,9 +4,16 @@
     <div nz-col nzSpan="2">
       <nz-switch [(ngModel)]="isDebugMode" [nzLoading]="isRunning"></nz-switch>
     </div>
+    <div nz-col nzSpan="1"></div>
+    <div nz-col nzSpan="3">
+      <button [nzSize]="'small'" nz-button nzType="primary" (click)="searchScript(scriptSearchContent)">Search
+        Script</button>
+    </div>
   </div>
   <nz-descriptions nzBordered [nzColumn]="2" style="margin-top: 1rem">
-    <nz-descriptions-item nzTitle="File Path" [nzSpan]="2">{{sqlConfig && sqlConfig.filepath}}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="File Path" [nzSpan]="2">
+      {{sqlConfig && sqlConfig.filepath}}
+    </nz-descriptions-item>
     <nz-descriptions-item nzTitle="Sql Host">{{sqlConfig && sqlConfig.host}}</nz-descriptions-item>
     <nz-descriptions-item nzTitle="DataBase">{{sqlConfig && sqlConfig.database}}</nz-descriptions-item>
   </nz-descriptions>
@@ -37,8 +44,30 @@
   <ng-template #tplContent>
     <p>{{ versionText }}</p>
     <p>Other Script:</p>
-    <p *ngFor="let options of checkBoxTempOptions;index as i;">
-      <label nz-checkbox [(ngModel)]="options.checked">{{options.label}}</label>
-    </p>
+    <div style="height: 300px;overflow-y: auto;">
+      <nz-tree [nzData]="nodes" nzCheckable (nzClick)="nzEvent($event)"></nz-tree>
+    </div>
   </ng-template>
+  <ng-template #scriptSearchContent>
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixButton">
+      <input type="text" nz-input placeholder="input search text" [(ngModel)]="searchText" />
+    </nz-input-group>
+    <ng-template #suffixButton>
+      <button nz-button nzType="primary" nzSearch (click)="searchInFile()">Search</button>
+    </ng-template>
+    <div style="margin-top: 10px;min-height: 400px;max-height: 400px;overflow-y: auto;">
+      <nz-collapse nzGhost>
+        <nz-collapse-panel *ngFor="let result of searchScriptResult" [nzHeader]="result.scriptName">
+          <p style="margin:0;">
+            {{result.scriptDetail}}
+          </p>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </div>
+  </ng-template>
+  <div *ngIf="fullLoading"
+    style="height: 100vh;width: 100vw;z-index: 99999;position: fixed;top: 0;left: 0;background-color: rgba(255,255,255,0.5);padding-top:50vh">
+    <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+  </div>
+
 </div>
